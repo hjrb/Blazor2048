@@ -19,7 +19,7 @@ namespace Blazor2048
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
+            builder.Services.AddSingleton<StateContainer>();
             await builder.Build().RunAsync();
         }
     }

@@ -1,8 +1,7 @@
 @page "/2048"
 @using Blazor2048
 @using Microsoft.AspNetCore.Components.Web
-@*@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject ProtectedLocalStorage ProtectedLocalStorage*@
+@inject StateContainer state; 
 
 
 <div class="container">
@@ -97,32 +96,28 @@
         return game.CellText(row, col);
     }
 
-    public async Task NewGame()
+    public void NewGame()
     {
         this.game = new Game2048();
-        //await ProtectedLocalStorage.SetAsync("Blazro2048.CurrentGame", this.game);
+        state.Game = game;
     }
 
-    private async Task PerformMove(Action a)
+    private void PerformMove(Action a)
     {
         a();
-        //await ProtectedLocalStorage.SetAsync("Blazro2048.CurrentGame", this.game);
+        state.Game = game;
     }
 
-    private async Task Up(MouseEventArgs e) => await PerformMove(() => game.Up());
-    private async Task Down(MouseEventArgs e) => await PerformMove(() => game.Down());
-    private async Task Left(MouseEventArgs e) => await PerformMove(() => game.Left());
-    private async Task Right(MouseEventArgs e) => await PerformMove(() => game.Right());
+    private void Up(MouseEventArgs e) => PerformMove(() => game.Up());
+    private void Down(MouseEventArgs e) => PerformMove(() => game.Down());
+    private void Left(MouseEventArgs e) => PerformMove(() => game.Left());
+    private void Right(MouseEventArgs e) => PerformMove(() => game.Right());
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         try
         {
-            //var item = await ProtectedLocalStorage.GetAsync<Game2048>("Blazro2048.CurrentGame");
-            //if (item.Success)
-            //{
-            //    this.game = item.Value;
-            //}
+            game = state.Game;
         }
         catch (Exception ex)
         {
@@ -130,10 +125,4 @@
         }
     }
 
-    private void OnKeyPress(KeyboardEventArgs args)
-    {
-        KeyPressed = "Key Pressed is " + args.Key;
-        // get type
-        EventInfo = "Event Type " + args.Type;
-    }
 }
