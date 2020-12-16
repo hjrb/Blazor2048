@@ -1,0 +1,68 @@
+.gametable {
+    border: 2px solid black;
+    width: 400px;
+    height: 400px;
+    background-color: darkgray;
+}
+
+.gamecell {
+    border: 4px solid burlywood;
+    border-radius: 10px;
+    align-content: center;
+    text-align: center;
+    height: 100px;
+    width: 100px;
+    background-color: darkgray;
+    min-width: 40px;
+}
+
+.scoreth {
+    width: 200px
+}
+
+.scordtd {
+    text-align: center
+}
+
+td[data-value="2"] {
+  background-color: lemonchiffon;
+}
+
+td[data-value="4"] {
+  background-color:lightsalmon;
+}
+
+td[data-value="8"] {
+  background-color: lightseagreen;
+}
+td[data-value="16"] {
+  background-color: lightskyblue;
+}
+
+td[data-value="32"] {
+  background-color: lightskyblue;
+}
+
+td[data-value="64"] {
+  background-color: greenyellow;
+}
+
+td[data-value="128"] {
+  background-color: lightpink;
+}
+
+td[data-value="256"] {
+  background-color: maroon;
+}
+
+td[data-value="512"] {
+  background-color: mediumslateblue;
+}
+
+td[data-value="1024"] {
+  background-color: mediumturquoise;
+}
+
+td[data-value="2048"] {
+  background-color: red;
+}

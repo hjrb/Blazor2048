@@ -1,0 +1,55 @@
+﻿@page "/"
+
+<h1>A Blazor Demo app for playing the game "2048"</h1>
+
+<p>Blazor is a new development platform based on .NET 5 (Core), WebAssembly (WASM) and C#.</p>
+<p>It allows C# developers to write code for modern Browser applications, that modifies data and reacts to browser DOM events (e.g. button click) using C# code.</p>
+<p>The HTML based UI, running in a modern browser, is updated using (two-way) data-binding.</p>
+<p>
+    Whenever the data of the model, representing the screen changes and a binding exits, a background process uses a HTTP requests (SignalR) and
+    a (small) JavaScript library (provided by MS) to update the DOM in the browser accordingly.
+</p>
+<p>This way writing JavaScript code, to implement application logic and to alter the HTML DOM elements, is almost completely unnecessary.</p>
+<p>This little app implements the popular game 2048 using Blazor</p>
+<hr>
+<h2>Rules of the game</h2>
+<ul>
+    <li>The game is a board of 4X4 cells</li>
+    <li>A cell is either empty or has an integer number value (occupied). The only possible values are powers of 2: 2, 4, 8, 16....2048</li>
+    <li><strong>The objective of the game is to reach at least one cell with a value of 2048 - hence the name of the game.</strong></li>
+    <li>The player can move the complete board only (not dedicated cells).</li>
+    <li>The possible moves are up, down, left, right (s. below)</li>
+    <li>After each move one of the empty cells is randomly chosen and a value of 2 or 4 is applied (90% chance for a 2, 10% chance for a 4)</li>
+</ul>
+<p>The cells move like this during a games move:</p>
+<ol>
+    <li>
+        <p>
+            the sequence of processing the cell, per move is:
+            <ul>
+                <li>Move UP: rows 1-4 for all column</li>
+                <li>Move DOWN: rows 4->1 for all columns</li>
+                <li>Move RIGHT: column 4-1, all rows</li>
+                <li>Move Left: column 1-4, all rows</li>
+            </ul>
+        </p>
+    </li>
+    <li>
+        <p>
+            for each cell in the sequence:
+            <ol>
+                <li>check in the moves direction...</li>
+                <li>if there is another cell with a <strong>different</strong> value, move the cell next to the other cell</li>
+                <li>if there is another cell with the <strong>same</strong> value, then merge the cell with the other cell. The new value is the sum of the cells (which is equal to two times the original cell value).</li>
+                <li>if there is no cell with a value in the moves direction the cell moves all the way to the border of the board</li>
+                <li>these rules are applied in this sequence</li>
+            </ol>
+        </p>
+    </li>
+</ol>
+
+
+
+
+
+

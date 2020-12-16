@@ -1,0 +1,139 @@
+@page "/2048"
+@using Blazor2048
+@using Microsoft.AspNetCore.Components.Web
+@*@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStorage*@
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h2>Let's Play 2048!</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            @*the board*@
+            <table class="gametable">
+                @for (int row = 0; row < 4; ++row)
+                {
+                    <tr>
+                        @for (int col = 0; col < 4; ++col)
+                        {
+                            <td class="gamecell"
+                                data-value="@CellText(row,col)">
+                                @*data-value will be referenced by css for styling*@
+                                @CellText(row, col)
+                            </td>
+                        }
+                    </tr>
+                }
+            </table>
+        </div>
+        @*the buttons to control the game with the mouse / touch*@
+        <div class="col">
+            <table style="width:400px; border:solid">
+                <tr>
+                    <td colspan="3">
+                        <button class="btn btn-default btn-block" @onclick="NewGame">
+                            New Game
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><button class="btn btn-default btn-block" @onclick="Up">Up</button></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><button class="btn btn-default btn-block" @onclick="Left">Left</button></td>
+                    <td></td>
+                    <td><button class="btn btn-default btn-block" @onclick="Right">Right</button></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><button class="btn btn-default btn-block" @onclick="Down">Down</button></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-offset-2 col-8">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="scoreth">Move</th>
+                        <th class="scoreth">Status</th>
+                        <th class="scoreth">Max Value</th>
+                        <th class="scoreth">Total Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="scordtd">@game.MoveCounter</td>
+                        <td class="scordtd">
+                            @(game.Max>=2048 ? "Your are a Winner!!" : "Keep playing...")
+                        </td>
+                        <td class="scordtd">@game.Max</td>
+                        <td class="scordtd">@game.Total</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<h4>@KeyPressed </h4>
+<h4>@EventInfo</h4>
+
+@code { string KeyPressed = "";
+    string EventInfo = "";
+
+    Game2048 game = new Game2048();
+    string CellText(int row, int col)
+    {
+        return game.CellText(row, col);
+    }
+
+    public async Task NewGame()
+    {
+        this.game = new Game2048();
+        //await ProtectedLocalStorage.SetAsync("Blazro2048.CurrentGame", this.game);
+    }
+
+    private async Task PerformMove(Action a)
+    {
+        a();
+        //await ProtectedLocalStorage.SetAsync("Blazro2048.CurrentGame", this.game);
+    }
+
+    private async Task Up(MouseEventArgs e) => await PerformMove(() => game.Up());
+    private async Task Down(MouseEventArgs e) => await PerformMove(() => game.Down());
+    private async Task Left(MouseEventArgs e) => await PerformMove(() => game.Left());
+    private async Task Right(MouseEventArgs e) => await PerformMove(() => game.Right());
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            //var item = await ProtectedLocalStorage.GetAsync<Game2048>("Blazro2048.CurrentGame");
+            //if (item.Success)
+            //{
+            //    this.game = item.Value;
+            //}
+        }
+        catch (Exception ex)
+        {
+            // play a new game
+        }
+    }
+
+    private void OnKeyPress(KeyboardEventArgs args)
+    {
+        KeyPressed = "Key Pressed is " + args.Key;
+        // get type
+        EventInfo = "Event Type " + args.Type;
+    }
+}
