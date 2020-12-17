@@ -19,6 +19,20 @@ namespace UnitTestProject1
                 Assert.IsTrue(Enumerable.SequenceEqual(game.Cells, testCase.moved));
             }
         }
+        [TestMethod]
+        public void TestMethodMoveAdd()
+        {
+            var game = new Game2048() { NoAutoAdd = true };
+            do
+            {
+                game.Add();
+                var empty = game.EmptyCells.ToArray();
+                var wrong = empty.Where(x => game.Cells[x] != 0);
+                Assert.IsFalse(wrong.Any());
+            } while (game.EmptyCells.Any());
+
+        }
+
 
         [TestMethod]
         public void TestMethodMoveRight()

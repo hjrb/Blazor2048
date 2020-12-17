@@ -5,6 +5,9 @@ using System.Linq;
 namespace Blazor2048
 {
 
+    /// <summary>
+    /// a class that implements the game 2048
+    /// </summary>
     public class Game2048
     {
         public int Size { get; }
@@ -169,14 +172,37 @@ namespace Blazor2048
             });
         }
 
-         private Random random = new();
-        private void Add()
+        /// <summary>
+        /// a delegate that get the index and value of a cell as input and returns true (meets some criteria)
+        /// </summary>
+        /// <param name="index">index of the cell in the array</param>
+        /// <param name="value">value of the cell</param>
+        /// <returns>true if the desired criteria is met e.g. val==0 || val==2*i</returns>
+        public delegate bool CellSelector(int value, int index);
+
+        /// <summary>
+        /// a enumerators for the cell indizes that meet criteria of the cond
+        /// </summary>
+        /// <param name="cond">the delegate that compuse the where condidtion</param>
+        /// <returns>the enumeratoration of cell indizes that meet the condition cond</returns>
+        public IEnumerable<int> Where(CellSelector cond) => Cells.Select((val, idx) => new { val, idx }).Where(x => cond(x.val, x.idx)).Select(x => x.idx);
+
+        /// <summary>
+        /// return an enumeration of cells that have value 0 (empty)
+        /// </summary>
+        public IEnumerable<int> EmptyCells => Where((value, idx) => value == 0);
+
+        private Random random = new();
+
+        /// <summary>
+        /// add a new random value for an empty cell
+        /// </summary>
+        public void Add()
         {
-            var emptyCells = Cells.Where(x=>x==0).Select((val, idx)=>idx).ToArray();
-            LastAddedCellIndex = random.Next(emptyCells.Length);
-            var value = random.Next(100);
-            // create a new value with 90% change for a two and 10% change for a four
-            Cells[LastAddedCellIndex] = value > 89 ? 4 : 2;
+            var emptyCells = this.EmptyCells.ToArray(); // get the array of indizes of the empty cells
+            LastAddedCellIndex = emptyCells[random.Next(emptyCells.Length)]; // choose one randomly
+            var value = random.Next(100); // generate a ranom value 0..99
+            Cells[LastAddedCellIndex] = value > 89 ? 4 : 2; // create a new value with 90% chance for a two and 10% chance for a four
             ++MoveCounter;
         }
     }
