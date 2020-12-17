@@ -12,9 +12,10 @@
     text-align: center;
     font-size: 40px;
     font-weight: 900;
+    color: rgb(31, 29, 29);
     height: 100px;
     width: 100px;
-    background-color: darkgray;
+    background-color:rgb(85, 69, 69);
     min-width: 40px;
     transition: background-color 1.5s;
 }
@@ -28,49 +29,50 @@
 }
 
 td[data-added="true"] {
-    color: red;
+    color: darkblue;
 }
 
+
 td[data-value="2"] {
-    background-color: lemonchiffon;
+    background-color: rgb(238, 228, 218);
 }
 
 td[data-value="4"] {
-    background-color: lightsalmon;
+    background-color: rgb(237, 224, 200);
 }
 
 td[data-value="8"] {
-    background-color: lightseagreen;
+    background-color: rgb(242, 177, 121);
 }
 
 td[data-value="16"] {
-    background-color: lightskyblue;
+    background-color: rgb(245, 149, 99);
 }
 
 td[data-value="32"] {
-    background-color: lightskyblue;
+    background-color: rgb(246, 124, 95);
 }
 
 td[data-value="64"] {
-    background-color: greenyellow;
+    background-color: rgb(246, 94, 59);
 }
 
 td[data-value="128"] {
-    background-color: lightpink;
+    background-color: rgb(237, 207, 114);
 }
 
 td[data-value="256"] {
-    background-color: maroon;
+    background-color: rgb(237, 204, 97);
 }
 
 td[data-value="512"] {
-    background-color: mediumslateblue;
+    background-color: rgb(237, 200, 80);
 }
 
 td[data-value="1024"] {
-    background-color: mediumturquoise;
+    background-color: rgb(237, 197, 63);
 }
 
 td[data-value="2048"] {
-    background-color: red;
+    background-color: rgb(237, 194, 46);
 }

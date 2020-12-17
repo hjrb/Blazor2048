@@ -55,13 +55,24 @@ namespace Blazor2048
         /// </summary>
         public int LastAddedCellIndex { get; private set; }
 
-        public int this[int row, int col]
+        /// <summary>
+        /// cell indexer
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public int this[int row, int column]
         {
-            get { return Cells[row * Size + col]; }
-            set { Cells[row * Size + col] = value; }
+            get { return Cells[(row * Size) + column]; }
+            set { Cells[(row * Size) + column] = value; }
         }
 
-        public bool Iterate(Func<int, bool> move)
+        /// <summary>
+        /// iterate one dimension of the grid (rows or columns)
+        /// </summary>
+        /// <param name="move">a delegate the performs a move and return if something happend</param>
+        /// <returns>if an move execution change the game</returns>
+        private bool Iterate(Func<int, bool> move)
         {
             bool anyMove = false;
             for (int index = 0; index < Size; ++index)
@@ -70,33 +81,53 @@ namespace Blazor2048
             }
             if (anyMove)
             {
+                // if there was a move then call Add()
                 if (!NoAutoAdd) Add();
             }
             return anyMove;
         }
 
+        /// <summary>
+        /// performs a vertical move operation
+        /// </summary>
+        /// <param name="otherRow">the index of another row to tested</param>
+        /// <param name="column">the current column</param>
+        /// <param name="currentRow">the idex of the current row</param>
+        /// <param name="moved">set to true if a move occured</param>
+        /// <returns>if the current cell has change and further processing is required</returns>
         bool DoVerticalMove(int otherRow, int column, ref int currentRow, ref bool moved) {
+            // other row value is the same a the current row value (for the given column)
             if (this[otherRow, column] == this[currentRow, column])
             {
-                moved = true;
-                this[otherRow, column] += this[currentRow, column];
-                this[currentRow, column] = 0;
-                return false;
+                moved = true; // we move the current cell
+                this[otherRow, column] += this[currentRow, column]; // by joining
+                this[currentRow, column] = 0; // and setting the original cell to empty
+                return false; // we don't need to work on this cell anymore
             }
+            // other row value is 0 (for the given column)
             else if (this[otherRow, column] == 0)
             {
-                moved = true;
-                this[otherRow, column] = this[currentRow, column];
-                this[currentRow, column] = 0;
-                currentRow = otherRow;
+                moved = true; // we move the current cell
+                this[otherRow, column] = this[currentRow, column]; // set the empty to the current cell
+                this[currentRow, column] = 0; // clear the current cell
+                currentRow = otherRow; // we must continue with the new cell!
                 return true;
             }
             else
             {
+                // no move possible
                 return false;
             }
         }
 
+        /// <summary>
+        /// performs a horizontal move operation
+        /// </summary>
+        /// <param name="otherRow">the index of another row to tested</param>
+        /// <param name="column">the current column</param>
+        /// <param name="currentRow">the idex of the current row</param>
+        /// <param name="moved">set to true if a move occured</param>
+        /// <returns>if the current cell has change and further processing is required</returns>
         public bool DoHorizontalMove(int row, int otherColumn, ref int currentColumn, ref bool moved)
         {
             if (this[row, otherColumn] == this[row, currentColumn])
@@ -121,15 +152,22 @@ namespace Blazor2048
 
         }
 
+        /// <summary>
+        /// peform a down move
+        /// </summary>
+        /// <returns>if any cell changed</returns>
         public bool Down()
         {
+            // forech columns
             return Iterate((column) =>
             {
                 bool anyMove = false;
+                // process all rows but the last
                 for (int row = Size - 2; row >= 0; --row)
                 {
-                    if (this[row, column] == 0) continue;
+                    if (this[row, column] == 0) continue; // the cell is empty, we are done
                     int curentRow = row;
+                    // check all rows above the current row
                     for (int otherRow = row + 1; otherRow < Size; otherRow++)
                     {
                         if (!DoVerticalMove(otherRow, column, ref curentRow, ref anyMove)) break;
@@ -139,6 +177,10 @@ namespace Blazor2048
             });
         }
 
+        /// <summary>
+        /// peform an Up move
+        /// </summary>
+        /// <returns>if any cell changed</returns>
         public bool Up()
         {
             return Iterate((column) =>
@@ -157,6 +199,10 @@ namespace Blazor2048
             });
         }
 
+        /// <summary>
+        /// perform a Left move
+        /// </summary>
+        /// <returns>if any cell changed</returns>
         public bool Left()
         {
             return Iterate((row) =>
@@ -175,6 +221,10 @@ namespace Blazor2048
             });
         }
 
+        /// <summary>
+        /// performs a Right move
+        /// </summary>
+        /// <returns>if any cell changed</returns>
         public bool Right()
         {
 
