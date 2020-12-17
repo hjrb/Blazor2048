@@ -20,7 +20,7 @@
                         @for (int col = 0; col < 4; ++col)
                         {
                             <td class="gamecell"
-                                data-value="@CellText(row,col)">
+                                data-value="@(game[row,col])" data-added="@((game.Size*row+col)==game.LastAddedCellIndex ? "true" : "false")">
                                 @*data-value will be referenced by css for styling*@
                                 @CellText(row, col)
                             </td>
@@ -119,10 +119,11 @@
         {
             game = state.Game;
         }
-        catch (Exception ex)
+        catch (Exception )
         {
             // play a new game
         }
+        this.StateHasChanged();
     }
 
 }

@@ -4,33 +4,25 @@ using System.Linq;
 
 namespace Blazor2048
 {
-    public record CellRefernce(int row, int col);
 
     public class Game2048
     {
         public int Size { get; }
         public bool NoAutoAdd { get; set; } = false;
-
-        private int[] cells;
-        public int[] Cells
-        {
-            get { return cells; }
-            set
-            {
-                this.cells = value;
-            }
-        }
+        public int[] Cells { get; set; }
         public int MoveCounter { get; set; } = 0;
 
         public Game2048()
         {
             Size = 4;
-            cells = new int[Size * Size];
+            Cells = new int[Size * Size];
             if (!NoAutoAdd) Add();
         }
 
-        public int Total => cells.Sum();
-        public int Max => cells.Max();
+        public int Total => Cells.Sum();
+        public int Max => Cells.Max();
+
+        public int LastAddedCellIndex { get; private set; }
 
         public string CellText(int row, int col)
         {
@@ -40,16 +32,16 @@ namespace Blazor2048
 
         public int this[int row, int col]
         {
-            get { return cells[row * Size + col]; }
-            set { cells[row * Size + col] = value; }
+            get { return Cells[row * Size + col]; }
+            set { Cells[row * Size + col] = value; }
         }
 
-        public bool VerticalMove(Func<int, bool> processRows)
+        public bool Iterate(Func<int, bool> move)
         {
             bool anyMove = false;
-            for (int column = 0; column < Size; ++column)
+            for (int index = 0; index < Size; ++index)
             {
-                anyMove |= processRows(column);
+                anyMove |= move(index);
             }
             if (anyMove)
             {
@@ -58,76 +50,26 @@ namespace Blazor2048
             return anyMove;
         }
 
-        public bool HorizontalMove(Func<int, bool> processColumns)
-        {
-            bool anyMove = false;
-            for (int row = 0; row < Size; ++row)
-            {
-                anyMove |= processColumns(row);
-            }
-            if (anyMove)
-            {
-                if (!NoAutoAdd) Add();
-            }
-            return anyMove;
-        }
-
-        bool DoVerticalMove(int otherRow, int column, ref int currentColumn, ref bool moved) {
-            if (this[otherRow, column] == this[currentColumn, column])
+        bool DoVerticalMove(int otherRow, int column, ref int currentRow, ref bool moved) {
+            if (this[otherRow, column] == this[currentRow, column])
             {
                 moved = true;
-                this[otherRow, column] += this[currentColumn, column];
-                this[currentColumn, column] = 0;
+                this[otherRow, column] += this[currentRow, column];
+                this[currentRow, column] = 0;
                 return false;
             }
             else if (this[otherRow, column] == 0)
             {
                 moved = true;
-                this[otherRow, column] = this[currentColumn, column];
-                this[currentColumn, column] = 0;
-                currentColumn = otherRow;
+                this[otherRow, column] = this[currentRow, column];
+                this[currentRow, column] = 0;
+                currentRow = otherRow;
                 return true;
             }
             else
             {
                 return false;
             }
-        }
-
-        public bool Down()
-        {
-            return VerticalMove((column) =>
-            {
-                bool anyMove = false;
-                for (int row = Size - 1; row >= 0; --row)
-                {
-                    if (this[row, column] == 0) continue;
-                    int curentRow = row;
-                    for (int otherRow = row + 1; otherRow < Size; otherRow++)
-                    {
-                        if (!DoVerticalMove(otherRow, column, ref curentRow, ref anyMove)) break;
-                    }
-                }
-                return anyMove;
-            });
-        }
-
-        public bool Up()
-        {
-            return VerticalMove((column) =>
-            {
-                bool anyMove = false;
-                for (int row = 1; row < Size; ++row)
-                {
-                    if (this[row, column] == 0) continue;
-                    int x = row;
-                    for (int r2 = row - 1; r2 >= 0; r2--)
-                    {
-                        if (!DoVerticalMove(r2, column, ref x, ref anyMove)) break;
-                    }
-                }
-                return anyMove;
-            });
         }
 
         public bool DoHorizontalMove(int row, int otherColumn, ref int currentColumn, ref bool moved)
@@ -153,12 +95,49 @@ namespace Blazor2048
             }
 
         }
-        public bool Left()
+
+        public bool Down()
         {
-            return HorizontalMove((row) =>
+            return Iterate((column) =>
             {
                 bool anyMove = false;
-                for (int column = 0; column <= Size-1; ++column)
+                for (int row = Size - 2; row >= 0; --row)
+                {
+                    if (this[row, column] == 0) continue;
+                    int curentRow = row;
+                    for (int otherRow = row + 1; otherRow < Size; otherRow++)
+                    {
+                        if (!DoVerticalMove(otherRow, column, ref curentRow, ref anyMove)) break;
+                    }
+                }
+                return anyMove;
+            });
+        }
+
+        public bool Up()
+        {
+            return Iterate((column) =>
+            {
+                bool anyMove = false;
+                for (int row = 1; row < Size; ++row)
+                {
+                    if (this[row, column] == 0) continue;
+                    int currentRow= row;
+                    for (int otherRow = row - 1; otherRow >= 0; otherRow--)
+                    {
+                        if (!DoVerticalMove(otherRow, column, ref currentRow, ref anyMove)) break;
+                    }
+                }
+                return anyMove;
+            });
+        }
+
+        public bool Left()
+        {
+            return Iterate((row) =>
+            {
+                bool anyMove = false;
+                for (int column = 1; column < Size; ++column)
                 {
                     if (this[row, column] == 0) continue;
                     int currentColumn = column;
@@ -174,10 +153,10 @@ namespace Blazor2048
         public bool Right()
         {
 
-            return HorizontalMove((row) =>
+            return Iterate((row) =>
             {
                 bool anyMove = false;
-                for (int column = Size - 1; column >= 0; --column)
+                for (int column = Size - 2; column >= 0; --column)
                 {
                     if (this[row, column] == 0) continue;
                     int currentColumn = column;
@@ -190,29 +169,14 @@ namespace Blazor2048
             });
         }
 
-        public IEnumerable<CellRefernce> CellReferences(Func<int, int, int, bool> filter)
-        {
-            for (int r = 0; r < Size; ++r)
-            {
-                for (int c = 0; c < Size; ++c)
-                {
-                    if (filter(r, c, this[r, c]))
-                    {
-                        yield return new CellRefernce(r, c);
-                    }
-                }
-            }
-        }
-
-        private Random random = new();
+         private Random random = new();
         private void Add()
         {
-            var emptyCells = CellReferences((r, c, v) => v == 0).ToArray();
-            var i = random.Next(emptyCells.Count());
-            var cellRef = emptyCells[i];
+            var emptyCells = Cells.Where(x=>x==0).Select((val, idx)=>idx).ToArray();
+            LastAddedCellIndex = random.Next(emptyCells.Length);
             var value = random.Next(100);
             // create a new value with 90% change for a two and 10% change for a four
-            this[cellRef.row, cellRef.col] = value > 89 ? 4 : 2;
+            Cells[LastAddedCellIndex] = value > 89 ? 4 : 2;
             ++MoveCounter;
         }
     }
