@@ -10,11 +10,10 @@ namespace Blazor2048
     /// </summary>
     public class Game2048
     {
-        public int Size { get; }
-        public bool NoAutoAdd { get; set; } = false;
-        public int[] Cells { get; set; }
-        public int MoveCounter { get; set; } = 0;
 
+        /// <summary>
+        /// ctor
+        /// </summary>
         public Game2048()
         {
             Size = 4;
@@ -22,16 +21,39 @@ namespace Blazor2048
             if (!NoAutoAdd) Add();
         }
 
+        /// <summary>
+        /// the size of the game, default is 4
+        /// </summary>
+        public int Size { get; }
+
+        /// <summary>
+        /// if set to true (default is false) after a move has been performend the Add function is not being called
+        /// </summary>
+        public bool NoAutoAdd { get; set; } = false;
+
+        /// <summary>
+        /// the cells. for various pratical reasons (and for better performance) a 1d array is used instead of a 2d grid
+        /// </summary>
+        public int[] Cells { get; set; }
+
+        /// <summary>
+        /// the counter of the moves
+        /// </summary>
+        public int MovesCounter { get; set; } = 0;
+
+        /// <summary>
+        /// the sum of cell values
+        /// </summary>
         public int Total => Cells.Sum();
+        /// <summary>
+        /// the maximum cell value
+        /// </summary>
         public int Max => Cells.Max();
 
+        /// <summary>
+        /// the index of the last cell that was set by Add()
+        /// </summary>
         public int LastAddedCellIndex { get; private set; }
-
-        public string CellText(int row, int col)
-        {
-            var val = this[row, col];
-            return val == 0 ? string.Empty : val.ToString();
-        }
 
         public int this[int row, int col]
         {
@@ -203,7 +225,7 @@ namespace Blazor2048
             LastAddedCellIndex = emptyCells[random.Next(emptyCells.Length)]; // choose one randomly
             var value = random.Next(100); // generate a ranom value 0..99
             Cells[LastAddedCellIndex] = value > 89 ? 4 : 2; // create a new value with 90% chance for a two and 10% chance for a four
-            ++MoveCounter;
+            ++MovesCounter;
         }
     }
 }
