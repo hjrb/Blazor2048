@@ -1,28 +1,42 @@
 @page "/2048"
 @using Blazor2048
-@using Microsoft.AspNetCore.Components.Web
-@inject StateContainer state; 
-
+@inject IJSRuntime jsRuntime
+@inject StateContainer state;
 
 <div class="container">
-    <div class="row">
+    <div class="row pb-2">
         <div class="col-12">
             <h2>Let's Play 2048!</h2>
         </div>
     </div>
-    <div class="row">
+    <div class="row pb-2">
+        <div class="col">
+            <input type="button" class="btn btn-success btn-block btn-lg" @onclick="NewGame" value="New Game" />
+        </div>
+        <div class="col">
+            <div class="form-check form-switch-lg form-switch-xl">
+                <input @bind="showButtons"
+                       class="form-check-input"
+                       type="checkbox"
+                       id="checkBoxShowButtons" />
+                <label class="form-check-label" for="checkBoxShowButtons">
+                    Show Buttons
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row pb-2">
         <div class="col">
             @*the board*@
-            <table class="gametable">
-                @for (int row = 0; row < 4; ++row)
+            <table class="table gametable">
+                @for (int row = 0; row < game.Size; ++row)
                 {
                     <tr>
-                        @for (int col = 0; col < 4; ++col)
+                        @for (int col = 0; col < game.Size; ++col)
                         {
-                            <td class="gamecell"
-                                data-value="@(game[row,col])" data-added="@((game.Size*row+col)==game.LastAddedCellIndex ? "true" : "false")">
+                            <td class="gamecell" data-value="@(game[row,col])" data-added="@((game.Size*row+col)==game.LastAddedCellIndex ? "true" : "false")">
                                 @*data-value will be referenced by css for styling*@
-                                @CellText(row, col)
+                                <div class="gamecellcontent">@CellText(row, col)</div>
                             </td>
                         }
                     </tr>
@@ -30,37 +44,29 @@
             </table>
         </div>
         @*the buttons to control the game with the mouse / touch*@
-        <div class="col">
-            <table style="width:400px; border:solid">
-                <tr>
-                    <td colspan="3">
-                        <button class="btn btn-default btn-block" @onclick="NewGame">
-                            New Game
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><button class="btn btn-default btn-block" @onclick="Up">Up</button></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td><button class="btn btn-default btn-block" @onclick="Left">Left</button></td>
-                    <td></td>
-                    <td><button class="btn btn-default btn-block" @onclick="Right">Right</button></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td><button class="btn btn-default btn-block" @onclick="Down">Down</button></td>
-                    <td></td>
-                </tr>
-            </table>
-        </div>
+        @if (showButtons)
+        {
+            <div class="col">
+                <table class="table">
+                    <tr>
+                        <td colspan="3"><button class="btn btn-primary btn-block" @onclick="HandleUp"><span style="color:darkblue" class="oi oi-arrow-top"></span> Up  </button></td>
+                    </tr>
+                    <tr>
+                        <td><button class="btn btn-primary btn-block" @onclick="HandleLeft"><span style="color:darkblue" class="oi oi-arrow-left"></span> Left</button></td>
+                        <td></td>
+                        <td><button class="btn btn-primary btn-block" @onclick="HandleRight">Right <span style="color:darkblue" class="oi oi-arrow-right"></span></button></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><button class="btn btn-primary btn-block" @onclick="HandleDown"><span style="color:darkblue" class="oi oi-arrow-bottom"></span> Down</button></td>
+                    </tr>
+                </table>
+            </div>
+        }
     </div>
     <br>
-    <div class="row">
+    <div class="row pb-2">
         <div class="col-offset-2 col-8">
-            <table>
+            <table class="table table-bordered table-dark table-hover table-striped">
                 <thead>
                     <tr>
                         <th class="scoreth">Move</th>
@@ -85,42 +91,102 @@
 </div>
 
 @code {
+    /// <summary>
+    /// reference to the current page
+    /// </summary>
+    static P2048 page;
 
+    // see https://docs.microsoft.com/de-de/aspnet/core/blazor/call-dotnet-from-javascript?view=aspnetcore-5.0
+    /// <summary>
+    /// this method is static an hence callable per assembly. this allows static access from a JS Interop call
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    [JSInvokable("HandleKeyPress")]
+    public static async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        switch (e?.Code)
+        {
+            case "ArrowUp": page.Up(); break;
+            case "ArrowDown": page.Down(); break;
+            case "ArrowLeft": page.Left(); break;
+            case "ArrowRight": page.Right(); break;
+            default: break;
+        }
+    }
+
+    /// <summary>
+    /// if true the buttons to control the game using mouse will be shown
+    /// </summary>
+    bool showButtons = false;
+
+    /// <summary>
+    /// the game
+    /// </summary>
     Game2048 game = new Game2048();
+
     string CellText(int row, int col)
     {
+
         var val = game[row, col];
         return val == 0 ? string.Empty : val.ToString();
     }
 
+    /// <summary>
+    /// create a new game
+    /// </summary>
+    /// <returns></returns>
     public void NewGame()
     {
         this.game = new Game2048();
         state.Game = game;
     }
 
-    private void PerformMove(Action a)
+    /// <summary>
+    /// perform a move
+    /// </summary>
+    /// <param name="move"></param>
+    /// <returns></returns>
+    private void PerformMove(Func<bool> move)
     {
-        a();
-        state.Game = game;
+        // call the move...
+        if (move())
+        {
+            // save the game
+            state.Game = game;
+            // some cell has changed
+            this.StateHasChanged();
+        }
     }
 
-    private void Up(MouseEventArgs e) => PerformMove(() => game.Up());
-    private void Down(MouseEventArgs e) => PerformMove(() => game.Down());
-    private void Left(MouseEventArgs e) => PerformMove(() => game.Left());
-    private void Right(MouseEventArgs e) => PerformMove(() => game.Right());
+    /// <summary>
+    /// movments handlers
+    /// </summary>
+    /// <returns></returns>
+    public void Up() =>  PerformMove(() => game.Up());
+    public void Down() => PerformMove(() => game.Down());
+    public void Left() => PerformMove(() => game.Left());
+    public void Right() => PerformMove(() => game.Right());
+
+    private void HandleUp(MouseEventArgs e) => this.Up();
+    private void HandleDown(MouseEventArgs e) => this.Down();
+    private void HandleLeft(MouseEventArgs e) => this.Left();
+    private void HandleRight(MouseEventArgs e) => this.Right();
 
     protected override void OnInitialized()
     {
+        // set the static reference to the current page to this
+        page = this;
         try
         {
             game = state.Game;
         }
-        catch (Exception )
+        catch (Exception)
         {
             // play a new game
         }
+        // singnal that the state has changed
         this.StateHasChanged();
     }
-
 }
+
