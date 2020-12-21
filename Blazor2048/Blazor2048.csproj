@@ -4,15 +4,10 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyVersion>2020.353.16.0</AssemblyVersion>
     <FileVersion>2020.353.16.0</FileVersion>
+    <Nullable>enable</Nullable>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Remove="Pages\P2048 - Kopie.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Pages\P2048.razor.bak" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.1" />

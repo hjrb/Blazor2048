@@ -9,7 +9,7 @@ namespace Blazor2048
     {
         public Game2048 Game { get; set; } = new Game2048();
 
-        public event Action OnChange;
+        public event Action? OnChange;
 
         public void SetProperty(Game2048 value)
         {

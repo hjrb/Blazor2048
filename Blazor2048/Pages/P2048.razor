@@ -94,7 +94,7 @@
     /// <summary>
     /// reference to the current page
     /// </summary>
-    static P2048 page;
+    static P2048? page=null;
 
     // see https://docs.microsoft.com/de-de/aspnet/core/blazor/call-dotnet-from-javascript?view=aspnetcore-5.0
     /// <summary>
@@ -107,12 +107,13 @@
     {
         switch (e?.Code)
         {
-            case "ArrowUp": page.Up(); break;
-            case "ArrowDown": page.Down(); break;
-            case "ArrowLeft": page.Left(); break;
-            case "ArrowRight": page.Right(); break;
+            case "ArrowUp": page?.Up(); break;
+            case "ArrowDown": page?.Down(); break;
+            case "ArrowLeft": page?.Left(); break;
+            case "ArrowRight": page?.Right(); break;
             default: break;
         }
+        await Task.CompletedTask;
     }
 
     /// <summary>
