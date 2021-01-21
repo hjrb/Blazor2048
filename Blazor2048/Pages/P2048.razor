@@ -1,11 +1,9 @@
 @page "/2048"
 @using Blazor2048
 @using Microsoft.AspNetCore.Components.Web
-@using Blazor.IndexedDB.Framework
 @*@inject StateContainer state;*@
-@inject IIndexedDbFactory DbFactory
 @inject IJSRuntime jsRuntime
-@inject StateContainer state;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <div class="container">
     <div class="row pb-2">
@@ -98,7 +96,7 @@
     /// <summary>
     /// reference to the current page
     /// </summary>
-    static P2048? page=null;
+    static P2048? page = null;
 
     // see https://docs.microsoft.com/de-de/aspnet/core/blazor/call-dotnet-from-javascript?view=aspnetcore-5.0
     /// <summary>
@@ -109,15 +107,16 @@
     [JSInvokable("HandleKeyPress")]
     public static async Task HandleKeyPress(KeyboardEventArgs e)
     {
+        if (e == null || page == null) return;
         switch (e?.Code)
         {
-            case "ArrowUp": page?.Up(); break;
-            case "ArrowDown": page?.Down(); break;
-            case "ArrowLeft": page?.Left(); break;
-            case "ArrowRight": page?.Right(); break;
+            case "ArrowUp": await page.Up(); break;
+            case "ArrowDown": await page.Down(); break;
+            case "ArrowLeft": await page.Left(); break;
+            case "ArrowRight": await page.Right(); break;
             default: break;
         }
-        await Task.CompletedTask;
+        // await Task.CompletedTask;
     }
 
     /// <summary>
@@ -141,10 +140,24 @@
     /// create a new game
     /// </summary>
     /// <returns></returns>
-    public void NewGame()
+    public async Task NewGame()
     {
         this.game = new Game2048();
-        await SaveCurrentGameToIndexDB();
+        await SaveCurrentGame();
+    }
+
+    public async Task SaveCurrentGame()
+    {
+        try
+        {
+            var cellValues = string.Join(',', this.game.Cells);
+            await localStorage.SetItemAsync<Game2048>("Game", this.game);
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
 
     /// <summary>
@@ -152,13 +165,12 @@
     /// </summary>
     /// <param name="move"></param>
     /// <returns></returns>
-    private void PerformMove(Func<bool> move)
+    private async Task PerformMove(Func<bool> move)
     {
         // call the move...
         if (move())
         {
-            // save the game
-            state.Game = game;
+            await SaveCurrentGame();
             // some cell has changed
             this.StateHasChanged();
         }
@@ -168,15 +180,15 @@
     /// movments handlers
     /// </summary>
     /// <returns></returns>
-    public void Up() =>  PerformMove(() => game.Up());
-    public void Down() => PerformMove(() => game.Down());
-    public void Left() => PerformMove(() => game.Left());
-    public void Right() => PerformMove(() => game.Right());
+    public async Task Up() => await PerformMove(() => game.Up());
+    public async Task Down() => await PerformMove(() => game.Down());
+    public async Task Left() => await PerformMove(() => game.Left());
+    public async Task Right() => await PerformMove(() => game.Right());
 
-    private void HandleUp(MouseEventArgs e) => this.Up();
-    private void HandleDown(MouseEventArgs e) => this.Down();
-    private void HandleLeft(MouseEventArgs e) => this.Left();
-    private void HandleRight(MouseEventArgs e) => this.Right();
+    private async Task HandleUp(MouseEventArgs e) => await this.Up();
+    private async Task HandleDown(MouseEventArgs e) => await this.Down();
+    private async Task HandleLeft(MouseEventArgs e) => await this.Left();
+    private async Task HandleRight(MouseEventArgs e) => await this.Right();
 
     protected override async void OnInitialized()
     {
@@ -184,21 +196,17 @@
         page = this;
         try
         {
-            var storedGame = db.Games.FirstOrDefault();
-            if (storedGame != null)
-            {
-                var cellValues = storedGame.CellValues;
-                game.Cells = cellValues.Split(',').Select(x => int.Parse(x)).ToArray();
-            }
-            else
-            {
-                game = new Game2048();
+            // this.game.Cells = cellValues.Split(',').Select(x => int.Parse(x)).ToArray();
+            var savedGame=await localStorage.GetItemAsync<Game2048>("Game");
+            if (savedGame!=null) {
+                this.game = savedGame;
             }
         }
         catch (Exception)
         {
             // play a new game
         }
+        await SaveCurrentGame();
         // singnal that the state has changed
         this.StateHasChanged();
     }

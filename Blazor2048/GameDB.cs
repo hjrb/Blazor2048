@@ -16,7 +16,8 @@ namespace Blazor2048
         [Key]
         public int ID { get; set; }
 
-        public string CellValues { get; set; }
+        [Required]
+        public string CellValues { get; set; } = string.Empty;
     }
 
     public class GameDB : IndexedDb
@@ -24,7 +25,7 @@ namespace Blazor2048
             public GameDB(IJSRuntime jSRuntime, string name, int version) : base(jSRuntime, name, version) { }
 
             // These are like tables. Declare as many of them as you want.
-            public IndexedSet<Game2048Storage> Games { get; set; }
+            public IndexedSet<Game2048Storage>? Games { get; set; }
         
     }
 }

@@ -1,4 +1,4 @@
-using Blazor.IndexedDB.Framework;
+using Blazored.LocalStorage;
 
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +22,9 @@ namespace Blazor2048
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddSingleton<StateContainer>();
-            builder.Services.AddScoped<IIndexedDbFactory, IndexedDbFactory>();
+            builder.Services.AddBlazoredLocalStorage(config =>
+                config.JsonSerializerOptions.WriteIndented = true);
+
             await builder.Build().RunAsync();
         }
     }

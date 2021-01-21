@@ -23,8 +23,10 @@
     <script type="text/javascript">
         // register a document event hanlder for key down
         (function () {
+            console.log("Registering keydown event handler");
             document.addEventListener('keydown', function (e) {
                 // call the assembly method HandleKeyPress
+                console.log("Calling HandleKeyPress");
                 DotNet.invokeMethodAsync('Blazor2048', 'HandleKeyPress', serializeEvent(e));
             }, false);
         })();

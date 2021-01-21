@@ -34,7 +34,7 @@ namespace Blazor2048
         /// <summary>
         /// the cells. for various reasons (e.g. for better performance) a 1d array is used instead of a 2d grid
         /// </summary>
-        public int[] Cells { get; init; }
+        public int[] Cells { get; set; }
 
         /// <summary>
         /// the counter of the moves
