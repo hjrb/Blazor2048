@@ -9,14 +9,13 @@ namespace UnitTestProject1
     public class UnitTestGame2048
     {
 
-        public void RunTestCases((int[] initial, int[] moved)[] testCases, Action<Game2048> action)
+        public static void RunTestCases((int[] initial, int[] moved)[] testCases, Action<Game2048> action)
         {
-            var game = new Game2048() { NoAutoAdd = true };
-            foreach (var testCase in testCases)
+            foreach (var (initial, moved) in testCases)
             {
-                game.Cells = testCase.initial;
+                var game = new Game2048() { NoAutoAdd = true , Cells=initial};
                 action(game);
-                Assert.IsTrue(Enumerable.SequenceEqual(game.Cells, testCase.moved));
+                Assert.IsTrue(Enumerable.SequenceEqual(game.Cells, moved));
             }
         }
         [TestMethod]

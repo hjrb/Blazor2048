@@ -14,9 +14,9 @@ namespace Blazor2048
         /// <summary>
         /// ctor
         /// </summary>
-        public Game2048()
+        public Game2048(int Size=4)
         {
-            Size = 4;
+            this.Size = Size;
             Cells = new int[Size * Size];
             if (!NoAutoAdd) Add();
         }
@@ -34,12 +34,12 @@ namespace Blazor2048
         /// <summary>
         /// the cells. for various reasons (e.g. for better performance) a 1d array is used instead of a 2d grid
         /// </summary>
-        public int[] Cells { get; set; }
+        public int[] Cells { get; init; }
 
         /// <summary>
         /// the counter of the moves
         /// </summary>
-        public int MovesCounter { get; set; } = 0;
+        public int MovesCounter { get; private set; } = 0;
 
         /// <summary>
         /// the sum of cell values
@@ -64,7 +64,7 @@ namespace Blazor2048
         public int this[int row, int column]
         {
             get { return Cells[(row * Size) + column]; }
-            set { Cells[(row * Size) + column] = value; }
+            private set { Cells[(row * Size) + column] = value; }
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Blazor2048
         /// <param name="currentRow">the idex of the current row</param>
         /// <param name="moved">set to true if a move occured</param>
         /// <returns>if the current cell has change and further processing is required</returns>
-        bool DoVerticalMove(int otherRow, int column, ref int currentRow, ref bool moved) {
+        private bool DoVerticalMove(int otherRow, int column, ref int currentRow, ref bool moved) {
             // other row value is the same a the current row value (for the given column)
             if (this[otherRow, column] == this[currentRow, column])
             {
@@ -128,7 +128,7 @@ namespace Blazor2048
         /// <param name="currentRow">the idex of the current row</param>
         /// <param name="moved">set to true if a move occured</param>
         /// <returns>if the current cell has change and further processing is required</returns>
-        public bool DoHorizontalMove(int row, int otherColumn, ref int currentColumn, ref bool moved)
+        private bool DoHorizontalMove(int row, int otherColumn, ref int currentColumn, ref bool moved)
         {
             if (this[row, otherColumn] == this[row, currentColumn])
             {
@@ -262,7 +262,7 @@ namespace Blazor2048
         /// <summary>
         /// return an enumeration of cells that have value 0 (empty)
         /// </summary>
-        public IEnumerable<int> EmptyCells => Where((value, idx) => value == 0);
+        public IEnumerable<int> EmptyCells => Where((value, _) => value == 0);
 
         private readonly Random random = new();
 
@@ -271,10 +271,9 @@ namespace Blazor2048
         /// </summary>
         public void Add()
         {
-            var emptyCells = this.EmptyCells.ToArray(); // get the array of indizes of the empty cells
-            LastAddedCellIndex = emptyCells[random.Next(emptyCells.Length)]; // choose one randomly
-            var value = random.Next(100); // generate a ranom value 0..99
-            Cells[LastAddedCellIndex] = value > 89 ? 4 : 2; // create a new value with 90% chance for a two and 10% chance for a four
+            var emptyCellsIdxArray = this.EmptyCells.ToArray(); // get the array of indizes of the empty cells
+            LastAddedCellIndex = emptyCellsIdxArray[random.Next(emptyCellsIdxArray.Length)]; // choose one randomly
+            Cells[LastAddedCellIndex] = random.Next(100) > 89 ? 4 : 2; // create a new value with 90% chance for a two and 10% chance for a four
             ++MovesCounter;
         }
     }
