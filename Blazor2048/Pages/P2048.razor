@@ -1,8 +1,9 @@
 @page "/2048"
 @using Blazor2048
 @using Microsoft.AspNetCore.Components.Web
-@inject StateContainer state; 
-
+@using Blazor.IndexedDB.Framework
+@*@inject StateContainer state;*@
+@inject IIndexedDbFactory DbFactory
 
 <div class="container">
     <div class="row">
@@ -93,16 +94,30 @@
         return val == 0 ? string.Empty : val.ToString();
     }
 
-    public void NewGame()
+    public async Task NewGame()
     {
         this.game = new Game2048();
-        state.Game = game;
+        await SaveCurrentGameToIndexDB();
     }
 
-    private void PerformMove(Action a)
+    private async void PerformMove(Action a)
     {
         a();
-        state.Game = game;
+        await SaveCurrentGameToIndexDB();
+    }
+
+    private async Task SaveCurrentGameToIndexDB()
+    {
+        using var db = await DbFactory.Create<GameDB>();
+        var storedGame = db.Games.FirstOrDefault();
+        if (storedGame==null)
+        {
+            storedGame = new Game2048Storage();
+            db.Games.Add(storedGame);
+        }
+        storedGame.CellValues = string.Join(",", this.game.Cells);
+        await db.SaveChanges();
+
     }
 
     private void Up(MouseEventArgs e) => PerformMove(() => game.Up());
@@ -110,13 +125,23 @@
     private void Left(MouseEventArgs e) => PerformMove(() => game.Left());
     private void Right(MouseEventArgs e) => PerformMove(() => game.Right());
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
+        using var db = await DbFactory.Create<GameDB>();
         try
         {
-            game = state.Game;
+            var storedGame = db.Games.FirstOrDefault();
+            if (storedGame != null)
+            {
+                var cellValues = storedGame.CellValues;
+                game.Cells = cellValues.Split(',').Select(x => int.Parse(x)).ToArray();
+            }
+            else
+            {
+                game = new Game2048();
+            }
         }
-        catch (Exception )
+        catch (Exception)
         {
             // play a new game
         }

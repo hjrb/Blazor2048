@@ -27,12 +27,12 @@ namespace Blazor2048
         public int Size { get; }
 
         /// <summary>
-        /// if set to true (default is false) after a move has been performend the Add function is not being called
+        /// if set to true (default is false) after a move has been performed the Add function is not being called
         /// </summary>
         public bool NoAutoAdd { get; set; } = false;
 
         /// <summary>
-        /// the cells. for various pratical reasons (and for better performance) a 1d array is used instead of a 2d grid
+        /// the cells. for various reasons (e.g. for better performance) a 1d array is used instead of a 2d grid
         /// </summary>
         public int[] Cells { get; set; }
 
@@ -53,7 +53,7 @@ namespace Blazor2048
         /// <summary>
         /// the index of the last cell that was set by Add()
         /// </summary>
-        public int LastAddedCellIndex { get; private set; }
+        public int LastAddedCellIndex { get; set; }
 
         /// <summary>
         /// cell indexer
@@ -264,7 +264,7 @@ namespace Blazor2048
         /// </summary>
         public IEnumerable<int> EmptyCells => Where((value, idx) => value == 0);
 
-        private Random random = new();
+        private readonly Random random = new();
 
         /// <summary>
         /// add a new random value for an empty cell
