@@ -87,6 +87,24 @@ namespace Blazor2048
             return anyMove;
         }
 
+        public bool CanMove(int row , int colum)
+        {
+            if (this[row, colum] == 0) return false;
+            bool b=false;
+            void Test(int otherrow, int othercolumn)
+            {
+                if (otherrow < 0 || otherrow >= Size || othercolumn<0 || othercolumn>=Size) return ;
+                b |= this[otherrow, othercolumn] == 0 || this[otherrow, othercolumn] == this[row, colum];
+            }
+            Test(row - 1, colum);
+            Test(row + 1, colum);
+            Test(row, colum - 1);
+            Test(row, colum + 1);
+            return b;
+        }
+
+        public (int row, int column) ToGrid(int index) => (index / Size, index % Size);
+
         /// <summary>
         /// performs a vertical move operation
         /// </summary>
@@ -263,6 +281,9 @@ namespace Blazor2048
         /// return an enumeration of cells that have value 0 (empty)
         /// </summary>
         public IEnumerable<int> EmptyCells => Where((value, _) => value == 0);
+
+        public bool Won() => this.Where((value, _) => value >= 2048).Any();
+        public bool Done() => !this.Where((value, index) => { var (row, colum) = ToGrid(index); return CanMove(row, colum); }).Any();
 
         private readonly Random random = new();
 

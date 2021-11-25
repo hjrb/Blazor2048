@@ -81,7 +81,7 @@
                     <tr>
                         <td class="scordtd">@game.MovesCounter</td>
                         <td class="scordtd">
-                            @(game.Max>=2048 ? "Your are a Winner!!" : "Keep playing...")
+                            @(game.Won() ? "&#1F600; Your are a Winner!!" : ( game.Done() ? "Failure &#1F614; - try again with a new game :-)": "Keep playing..."))
                         </td>
                         <td class="scordtd">@game.Max</td>
                         <td class="scordtd">@game.Total</td>
@@ -171,9 +171,9 @@
         if (move())
         {
             await SaveCurrentGame();
-            // some cell has changed
-            this.StateHasChanged();
+
         }
+        this.StateHasChanged();    
     }
 
     /// <summary>
