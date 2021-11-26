@@ -288,11 +288,12 @@ namespace Blazor2048
         private readonly Random random = new();
 
         /// <summary>
-        /// add a new random value for an empty cell
+        /// add a new random value for a random empty cell
         /// </summary>
         public void Add()
         {
             var emptyCellsIdxArray = this.EmptyCells.ToArray(); // get the array of indizes of the empty cells
+            if (emptyCellsIdxArray.Length == 0) throw new InvalidOperationException("No empty cells left!");
             LastAddedCellIndex = emptyCellsIdxArray[random.Next(emptyCellsIdxArray.Length)]; // choose one randomly
             Cells[LastAddedCellIndex] = random.Next(100) > 89 ? 4 : 2; // create a new value with 90% chance for a two and 10% chance for a four
             ++MovesCounter;

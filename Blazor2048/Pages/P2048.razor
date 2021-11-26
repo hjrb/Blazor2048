@@ -2,8 +2,9 @@
 @using Blazor2048
 @using Microsoft.AspNetCore.Components.Web
 @*@inject StateContainer state;*@
-@inject IJSRuntime jsRuntime
+@*using local storage for WASM*@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IJSRuntime jsRuntime
 
 <div class="container">
     <div class="row pb-2">
@@ -66,6 +67,7 @@
         }
     </div>
     <br>
+    @*Status Indicator*@
     <div class="row pb-2">
         <div class="col-offset-2 col-8">
             <table class="table table-bordered table-dark table-hover table-striped">
@@ -173,7 +175,7 @@
             await SaveCurrentGame();
 
         }
-        this.StateHasChanged();    
+        this.StateHasChanged();
     }
 
     /// <summary>
@@ -197,8 +199,9 @@
         try
         {
             // this.game.Cells = cellValues.Split(',').Select(x => int.Parse(x)).ToArray();
-            var savedGame=await localStorage.GetItemAsync<Game2048>("Game");
-            if (savedGame!=null) {
+            var savedGame = await localStorage.GetItemAsync<Game2048>("Game");
+            if (savedGame != null)
+            {
                 this.game = savedGame;
             }
         }
