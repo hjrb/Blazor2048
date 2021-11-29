@@ -52,15 +52,43 @@
             <div class="col">
                 <table class="table">
                     <tr>
-                        <td colspan="3"><button class="btn btn-primary btn-block" @onclick="HandleUp"><span style="color:darkblue" class="oi oi-arrow-top"></span> Up  </button></td>
+                        <td colspan="3">
+                            <div class="d-flex justify-content-center  mb-3">
+                                <button type="button" class="btn btn-primary btn-lg" @onclick="HandleUp">
+                                    <span style="color:darkblue" class="oi oi-arrow-top">
+                                    </span>Up
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
-                        <td><button class="btn btn-primary btn-block" @onclick="HandleLeft"><span style="color:darkblue" class="oi oi-arrow-left"></span> Left</button></td>
+                        <td>
+                            <div class="d-flex justify-content-start  mb-3">
+                            <button type="button" class="btn btn-primary btn-lg " @onclick="HandleLeft">
+                                <span style="color:darkblue" class="oi oi-arrow-left"></span> Left
+                                </button>
+                                </div>
+                                </td>
                         <td></td>
-                        <td><button class="btn btn-primary btn-block" @onclick="HandleRight">Right <span style="color:darkblue" class="oi oi-arrow-right"></span></button></td>
+                        <td>
+                            <div class="d-flex justify-content-end  mb-3">
+                            <button type="button" class="btn btn-primary btn-lg " @onclick="HandleRight">Right 
+                                <span style="color:darkblue" class="oi oi-arrow-right"></span>
+                                </button>
+                                </div>
+                                </td>
                     </tr>
                     <tr>
-                        <td colspan="3"><button class="btn btn-primary btn-block" @onclick="HandleDown"><span style="color:darkblue" class="oi oi-arrow-bottom"></span> Down</button></td>
+                        <td colspan="3">
+                            <div class="d-flex justify-content-center  mb-3">
+                                <button type="button" class="btn btn-primary btn-lg" @onclick="HandleDown">
+                                    <span style="color:darkblue" class="oi oi-arrow-bottom">
+
+                                    </span>Down
+                                </button>
+                            </div>
+                        </td>
+
                     </tr>
                 </table>
             </div>
@@ -124,7 +152,7 @@
     /// <summary>
     /// if true the buttons to control the game using mouse will be shown
     /// </summary>
-    bool showButtons = false;
+    bool showButtons = true;
 
     /// <summary>
     /// the game
