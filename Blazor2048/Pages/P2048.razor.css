@@ -97,11 +97,10 @@ td[data-value="2048"] {
 }
 
 .controlbutton {
-    flex-basis: 200px;
+    flex-basis: 120px;
     flex-grow: 0;
     flex-shrink: 0;
 }
-
 
 .icon-keepplaying {
     margin-right: 2px;
@@ -116,10 +115,8 @@ td[data-value="2048"] {
     margin-right: 2px;
 }
 
-
 .icon-won::after {
     content: "\1F600";
-    
 }
 
 .icon-done {
@@ -135,35 +132,6 @@ td[data-value="2048"] {
     clear: left;
 }
 
-.form-switch.form-switch-sm {
-    margin-bottom: 0.5rem; /* JUST FOR STYLING PURPOSE */
-}
-
-    .form-switch.form-switch-sm .form-check-input {
-        height: 1rem;
-        width: calc(1rem + 0.75rem);
-        border-radius: 2rem;
-    }
-
-.form-switch.form-switch-md {
-    margin-bottom: 1rem; /* JUST FOR STYLING PURPOSE */
-}
-
-    .form-switch.form-switch-md .form-check-input {
-        height: 1.5rem;
-        width: calc(2rem + 0.75rem);
-        border-radius: 3rem;
-    }
-
-.form-switch.form-switch-lg {
-    margin-bottom: 1.5rem; /* JUST FOR STYLING PURPOSE */
-}
-
-    .form-switch.form-switch-lg .form-check-input {
-        height: 2rem;
-        width: calc(3rem + 0.75rem);
-        border-radius: 4rem;
-    }
 
 .form-switch.form-switch-xl {
     margin-bottom: 2rem; /* JUST FOR STYLING PURPOSE */
