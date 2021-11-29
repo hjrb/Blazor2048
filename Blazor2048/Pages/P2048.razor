@@ -6,6 +6,8 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject IJSRuntime jsRuntime
 
+@*    Touch Handling https://github.com/EdCharbeneau/BlazorPowerHour/issues/2*@
+
 <div class="container">
     <div class="row pb-2">
         <div class="col-12">
@@ -28,7 +30,7 @@
     <div class="row pb-2">
         <div class="col">
             @*the board*@
-            <table id="tableGame" class="table gametable">
+            <table id="tableGame" class="table gametable" @ontouchstart="TouchStart" @ontouchend="TouchEnd">
                 @for (int row = 0; row < game.Size; ++row)
                 {
                     <tr>
@@ -63,7 +65,7 @@
 
                 <div class="d-flex justify-content-center  mb-3">
                     <button type="button" class="btn btn-primary btn-lg controlbutton" @onclick="HandleDown">
-                        <span style="color:darkblue" class="oi oi-arrow-bottom m-1"></span>Down
+                        Down<span style="color:darkblue" class="oi oi-arrow-bottom m-1"></span>
                     </button>
                 </div>
 
@@ -107,8 +109,6 @@
     /// reference to the current page
     /// </summary>
     static P2048? page = null;
-    string gamestatustext = "Keep playing";
-    string gamestatusiconclass = "";
     // see https://docs.microsoft.com/de-de/aspnet/core/blazor/call-dotnet-from-javascript?view=aspnetcore-5.0
     /// <summary>
     /// this method is static an hence callable per assembly. this allows static access from a JS Interop call
@@ -130,15 +130,92 @@
         // await Task.CompletedTask;
     }
 
+
     /// <summary>
     /// if true the buttons to control the game using mouse will be shown
     /// </summary>
     bool showButtons = false;
+    /// <summary>
+    /// displays the game status
+    /// </summary>
+    string gamestatustext = "Keep playing";
+    /// the CSS class name representing the status
+    string gamestatusiconclass = "";
 
     /// <summary>
     /// the game
     /// </summary>
     Game2048 game = new Game2048();
+    /// <summary>
+    /// tuple for the data of a toucht event start
+    /// </summary>
+    (TouchPoint ReferencePoint, DateTime StartTime) startPoint;
+
+    void TouchStart(TouchEventArgs t)
+    {
+        startPoint.ReferencePoint = t.TargetTouches[0];
+        startPoint.StartTime = DateTime.Now;
+
+    }
+
+    async void TouchEnd(TouchEventArgs t)
+    {
+        
+        try
+        {
+            if (startPoint.ReferencePoint == null)
+            {
+                return;
+            }
+
+            var endReferencePoint = t.ChangedTouches[0];
+            var diffX = startPoint.ReferencePoint.ClientX - endReferencePoint.ClientX;
+            var diffY = startPoint.ReferencePoint.ClientY - endReferencePoint.ClientY;
+            var diffTime = DateTime.Now - startPoint.StartTime;
+            var b = false;
+            if (Math.Abs(diffX) > Math.Abs(diffY))
+            {
+                if (Math.Abs(diffX) > 10)
+                {
+                    if (diffX < 0)
+                    {
+                        b=game.Right(); 
+                    }
+                    else
+                    {
+                        b=game.Left();
+                    }
+                }
+            }
+            else
+            {
+                if (Math.Abs(diffY) > 10)
+                {
+                    if (diffY < 0)
+                    {
+                        b=game.Down();
+                    }
+                    else
+                    {
+                        b=game.Up();
+                    }
+                }
+            }
+            if (b)
+            {
+                await SaveCurrentGame();
+                EvaluateStatus();
+                this.StateHasChanged();
+            }
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+
+
 
     string CellText(int row, int col)
     {

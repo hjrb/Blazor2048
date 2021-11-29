@@ -97,7 +97,7 @@ td[data-value="2048"] {
 }
 
 .controlbutton {
-    flex-basis: 120px;
+    flex-basis: 80px;
     flex-grow: 0;
     flex-shrink: 0;
 }
