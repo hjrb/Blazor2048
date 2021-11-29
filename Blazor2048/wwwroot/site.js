@@ -23,10 +23,10 @@ var SwipeWidth = null;
 var SwipeArea = null;
 
 function RegisterSwipe() {
-    console.log("RegisterSwipe");
+    //console.log("RegisterSwipe");
     const SwipeWidthMax = 100;
     SwipeArea = document; //.querySelector("main");
-    console.log(SwipeArea);
+    // console.log(SwipeArea);
     SwipeWidth = Math.min(window.innerWidth * 0.2, SwipeWidthMax);
     console.log("SwipeWidth: ", SwipeWidth);
     SwipeArea.addEventListener("touchstart", SwipeStart, false);
@@ -34,13 +34,13 @@ function RegisterSwipe() {
 }
 
 function SwipeStart(evt) {
-    console.log("SwipeStart");
+    // console.log("SwipeStart");
     SwipeStartX = evt.changedTouches[0].clientX;
     SwipeStartY = evt.changedTouches[0].clientY;
 };
 
 function SwipeEnd(evt) {
-    console.log("SwipeEnd");
+    // console.log("SwipeEnd");
     const SwipeEndX = evt.changedTouches[0].clientX;
     const SwipeEndY = evt.changedTouches[0].clientY;
 
@@ -50,7 +50,7 @@ function SwipeEnd(evt) {
     if (Math.abs(SwipeLengthX) > Math.abs(SwipeLengthY)) {
         if (SwipeLengthX > SwipeWidth) {
             /* left swipe */
-            console.log("Swipped left");
+            //console.log("Swipped left");
             DotNet.invokeMethodAsync('Blazor2048', 'HandleKeyPress', { Code: "ArrowLeft" });
         }
         else if (SwipeLengthX < -SwipeWidth) {
@@ -62,12 +62,12 @@ function SwipeEnd(evt) {
     else {
         if (SwipeLengthY > SwipeWidth) {
             /* down up */
-            console.log("Swipped up");
+            //console.log("Swipped up");
             DotNet.invokeMethodAsync('Blazor2048', 'HandleKeyPress',  { Code: "ArrowUp" });
         }
         else if (SwipeLengthY < -SwipeWidth) {
             /* up down */
-            console.log("Swipped down");
+            //console.log("Swipped down");
             DotNet.invokeMethodAsync('Blazor2048', 'HandleKeyPress',  { Code: "ArrowDown" });
         }
     }
