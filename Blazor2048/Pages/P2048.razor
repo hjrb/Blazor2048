@@ -1,10 +1,10 @@
 @page "/2048"
 @using Blazor2048
 @using Microsoft.AspNetCore.Components.Web
-@*@inject StateContainer state;*@
+
 @*using local storage for WASM*@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-@*@inject IJSRuntime jsRuntime*@
+
 
 @*    Touch Handling https://github.com/EdCharbeneau/BlazorPowerHour/issues/2*@
 
@@ -14,19 +14,12 @@
             <h2>Let's Play 2048!</h2>
         </div>
     </div>*@
-    <div class="row pb-2">
+    <div class="row pb-2"> 
+        <div class="col">
+            <span class="tooltip oi oi-info">I<span class="tooltiptext">Let's Play 2048!</span></span>
 
-        @*@ontouchstart:preventDefault="true"
-            @ontouchmove:preventDefault="true"
-            @ontouchend:preventDefault="true" 
- @ontouchstart:stopPropagation="true"
-             @ontouchmove:stopPropagation="true"
-             @ontouchend:stopPropagation="true"            
-        *@
-        <div class="col"
-            >
             @*the board*@
-            <table id="tableGame" class="table gametable" @ontouchstart="TouchStart" @ontouchend="TouchEnd">
+            <table id="tableGame" class="table gametable " @ontouchstart="TouchStart" @ontouchend="TouchEnd" >
                 @for (int row = 0; row < game.Size; ++row)
                 {
                     <tr>
@@ -129,15 +122,22 @@
     public static async Task HandleKeyPress(KeyboardEventArgs e)
     {
         if (e == null || page == null) return;
-        switch (e?.Code)
+        try
         {
-            case "ArrowUp": await page.Up(); break;
-            case "ArrowDown": await page.Down(); break;
-            case "ArrowLeft": await page.Left(); break;
-            case "ArrowRight": await page.Right(); break;
-            default: break;
+            switch (e?.Code)
+            {
+                case "ArrowUp": await page.Up(); break;
+                case "ArrowDown": await page.Down(); break;
+                case "ArrowLeft": await page.Left(); break;
+                case "ArrowRight": await page.Right(); break;
+                default: break;
+            }
         }
-        // await Task.CompletedTask;
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+
     }
 
 
@@ -161,13 +161,20 @@
     /// </summary>
     (TouchPoint ReferencePoint, DateTime StartTime) startPoint;
 
+    /// <summary>
+    /// handle touch start
+    /// </summary>
+    /// <param name="t"></param>
     void TouchStart(TouchEventArgs t)
     {
         startPoint.ReferencePoint = t.TargetTouches[0];
         startPoint.StartTime = DateTime.Now;
-
     }
 
+    /// <summary>
+    /// handle touche end
+    /// </summary>
+    /// <param name="t"></param>
     async void TouchEnd(TouchEventArgs t)
     {
 
@@ -175,7 +182,7 @@
         {
             if (startPoint.ReferencePoint == null)
             {
-                return;
+                return; // that should never happen
             }
 
             var endReferencePoint = t.ChangedTouches[0];
@@ -183,32 +190,20 @@
             var diffY = startPoint.ReferencePoint.ClientY - endReferencePoint.ClientY;
             var diffTime = DateTime.Now - startPoint.StartTime;
             var b = false;
+            const int minSwipDiff = 10; // at least 10 pixels
+            // check if swipe was more horizontal vs. vertical
             if (Math.Abs(diffX) > Math.Abs(diffY))
             {
-                if (Math.Abs(diffX) > 10)
+                if (Math.Abs(diffX) > minSwipDiff)
                 {
-                    if (diffX < 0)
-                    {
-                        b = game.Right();
-                    }
-                    else
-                    {
-                        b = game.Left();
-                    }
+                    b = diffX < 0 ? game.Right() : game.Left();
                 }
             }
             else
             {
-                if (Math.Abs(diffY) > 10)
+                if (Math.Abs(diffY) > minSwipDiff)
                 {
-                    if (diffY < 0)
-                    {
-                        b = game.Down();
-                    }
-                    else
-                    {
-                        b = game.Up();
-                    }
+                    b = diffY < 0 ? game.Down() : game.Up();
                 }
             }
             if (b)
@@ -218,9 +213,9 @@
                 this.StateHasChanged();
             }
         }
-
         catch (Exception ex)
         {
+            // don't let the error out of the event handler
             Console.WriteLine(ex);
         }
     }
@@ -248,19 +243,22 @@
     public void EvaluateStatus()
     {
         var done = game.Done();
-        (gamestatustext, gamestatusiconclass) = game.Won() ?
-        ("Congratulations - your are a Winner!!", "icon-won")
-        : (
-            game.Done() ?
-            ("Sorry. Try again. Play a New Game", "icon-done")
-            : ("Keep playing...", "icon-keepplaying"));
+        (gamestatustext, gamestatusiconclass) = 
+            game.Won() ?
+            ("Congratulations - your are a Winner!!", "icon-won")
+            : (
+                game.Done() ?
+                ("Sorry. Try again. Play a New Game", "icon-done")
+                : ("Keep playing...", "icon-keepplaying")
+              );
     }
 
     public async Task SaveCurrentGame()
     {
         try
         {
-            var cellValues = string.Join(',', this.game.Cells);
+            //var cellValues = string.Join(',', this.game.Cells);
+            // TODO: save the current move as well.
             await localStorage.SetItemAsync<Game2048>("Game", this.game);
 
         }
