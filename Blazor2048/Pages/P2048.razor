@@ -4,31 +4,27 @@
 @*@inject StateContainer state;*@
 @*using local storage for WASM*@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-@inject IJSRuntime jsRuntime
+@*@inject IJSRuntime jsRuntime*@
 
 @*    Touch Handling https://github.com/EdCharbeneau/BlazorPowerHour/issues/2*@
 
 <div class="container">
-    <div class="row pb-2">
+@*    <div class="row pb-2">
         <div class="col-12">
             <h2>Let's Play 2048!</h2>
         </div>
-    </div>
+    </div>*@
     <div class="row pb-2">
-        <div class="col">
-            <input type="button" class="btn btn-success btn-block btn-lg" @onclick="NewGame" value="New Game" />
-        </div>
-        <div class="col">
 
-            <div class="form-check form-switch form-switch-xl d-flex align-items-center">
-                <input class="form-check-input" type="checkbox" id="checkBoxShowButtons" @bind="showButtons">
-                <label class="form-check-label" for="checkBoxShowButtons">Show Buttons</label>
-            </div>
-
-        </div>
-    </div>
-    <div class="row pb-2">
-        <div class="col">
+        @*@ontouchstart:preventDefault="true"
+            @ontouchmove:preventDefault="true"
+            @ontouchend:preventDefault="true" 
+ @ontouchstart:stopPropagation="true"
+             @ontouchmove:stopPropagation="true"
+             @ontouchend:stopPropagation="true"            
+        *@
+        <div class="col"
+            >
             @*the board*@
             <table id="tableGame" class="table gametable" @ontouchstart="TouchStart" @ontouchend="TouchEnd">
                 @for (int row = 0; row < game.Size; ++row)
@@ -74,17 +70,17 @@
 
         }
     </div>
-    <br>
+    
     @*Status Indicator*@
     <div class="row pb-2">
-        <div class="col-offset-2 col-8">
-            <table class="table table-bordered table-hover table-striped">
+        <div class="col">
+            <table class="table table-hover table-info">
                 <thead>
                     <tr>
                         <th class="scoreth">Move</th>
                         <th class="scoreth">Status</th>
-                        <th class="scoreth">Max Value</th>
-                        <th class="scoreth">Total Value</th>
+                        <th class="scoreth">Max</th>
+                        <th class="scoreth">Sum</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -102,6 +98,20 @@
             </table>
         </div>
     </div>
+    <div class="row pb-2">
+        <div class="col">
+            <input type="button" class="btn btn-outline-primary btn-block" @onclick="NewGame" value="New Game" />
+        </div>
+        <div class="col">
+
+            <div class="form-check form-switch form-switch-xl d-flex align-items-center">
+                <input class="form-check-input" type="checkbox" id="checkBoxShowButtons" @bind="showButtons">
+                <label class="form-check-label" for="checkBoxShowButtons">Buttons</label>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
 @code {
@@ -160,7 +170,7 @@
 
     async void TouchEnd(TouchEventArgs t)
     {
-        
+
         try
         {
             if (startPoint.ReferencePoint == null)
@@ -179,11 +189,11 @@
                 {
                     if (diffX < 0)
                     {
-                        b=game.Right(); 
+                        b = game.Right();
                     }
                     else
                     {
-                        b=game.Left();
+                        b = game.Left();
                     }
                 }
             }
@@ -193,11 +203,11 @@
                 {
                     if (diffY < 0)
                     {
-                        b=game.Down();
+                        b = game.Down();
                     }
                     else
                     {
-                        b=game.Up();
+                        b = game.Up();
                     }
                 }
             }
