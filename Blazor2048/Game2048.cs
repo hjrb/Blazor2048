@@ -1,5 +1,3 @@
-
-
 namespace Blazor2048;
 
 

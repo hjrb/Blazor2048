@@ -13,7 +13,8 @@ namespace UnitTestProject1
         {
             foreach (var (initial, moved) in testCases)
             {
-                var game = new Game2048() { NoAutoAdd = true , Cells=initial};
+                var game = new Game2048() { NoAutoAdd = true };
+                for (var i = 0; i < initial.Length; i++) game.Cells[i] = initial[i];
                 action(game);
                 Assert.IsTrue(Enumerable.SequenceEqual(game.Cells, moved));
             }
