@@ -1,25 +1,55 @@
-@page "/2048"
+@page "/Play"
 @using Blazor2048
 @using Microsoft.AspNetCore.Components.Web
-
 @*using local storage for WASM*@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IJSRuntime jsRuntime;
 
 
-@*    Touch Handling https://github.com/EdCharbeneau/BlazorPowerHour/issues/2*@
-
+@* make it focusable, prevent touch event handling, get a reference element ,register a handler for the key-up event  *@
 <div class="container">
-@*    <div class="row pb-2">
-        <div class="col-12">
-            <h2>Let's Play 2048!</h2>
-        </div>
-    </div>*@
-    <div class="row pb-2"> 
+    <div class="row pb-2 @welcomeButon">
         <div class="col">
-            <span class="tooltip oi oi-info">I<span class="tooltiptext">Let's Play 2048!</span></span>
+            <p>
+                <button class="btn btn-link link-info" type="button" @onclick="@(e=>infopanelvisible=string.IsNullOrEmpty(infopanelvisible) ? "collapse" : string.Empty)">
+                    <div class="d-flex justify-content-start mb-3 align-content-center">
+                        <h3>Let's play 2048 - click here to see instructions</h3>
+                        <button class="btn btn-close btn-inline m-2" @onclick="@(e=>welcomeButon="collapse")"></button>
+                    </div>
+                </button>
+            </p>
+            <div class="@infopanelvisible" id="infopanel">
+                <div class="card card-body">
+                    <ul>
+                        <li>
+                            The object is to create a cell with the value 2048 (or higher) by moving the boad causing cells with same value to join.
+                        </li>
+                        <li>
+                            How to perform a move?
+                            <ul>
+                                <li>If you have a keyboard (PC, Mac) simply use the keyboard buttons LEFT, RIGHT, UP and DOWN, to perform a move.</li>
+                                <li>On touch enabled device (phone, table) you can swipe LEFT, RIGHT, UP and DOWN .</li>
+                                <li>You can always check the option "Button". This will display buttons for LEFT, RIGHT, UP, DOWN you can either touch click with the mouse.</li>
+                            </ul>
+                            <NavLink href="" Match="NavLinkMatch.All">
+                                <span class="oi oi-info" aria-hidden="true"></span> Click here for more details...
+                            </NavLink>
+                            <a href="/Index"></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row pb-2">
+        <div class="col notouch nofocusframe"
+             tabindex="0"
+             @ref="divContainer"
+             @onkeyup="@KeyUp">
 
-            @*the board*@
-            <table id="tableGame" class="table gametable " @ontouchstart="TouchStart" @ontouchend="TouchEnd" >
+
+            @*the game board*@
+            <table id="tableGame" class="table gametable" @ontouchstart="TouchStart" @ontouchend="TouchEnd" @ontouchstart:preventDefault="true" @ontouchend:preventDefault="true">
                 @for (int row = 0; row < game.Size; ++row)
                 {
                     <tr>
@@ -60,7 +90,7 @@
             </div>
         }
     </div>
-    
+
     @*Status Indicator*@
     <div class="row pb-2">
         <div class="col">
@@ -108,25 +138,48 @@
     /// <summary>
     /// reference to the current page
     /// </summary>
-    static P2048? page = null;
+    // static P2048? page = null;
     // see https://docs.microsoft.com/de-de/aspnet/core/blazor/call-dotnet-from-javascript?view=aspnetcore-5.0
     /// <summary>
     /// this method is static an hence callable per assembly. this allows static access from a JS Interop call
     /// </summary>
     /// <param name="e"></param>
     /// <returns></returns>
-    [JSInvokable("HandleKeyPress")]
-    public static async Task HandleKeyPress(KeyboardEventArgs e)
+    //[JSInvokable("HandleKeyPress")]
+    //public static async Task HandleKeyPress(KeyboardEventArgs e)
+    //{
+    //    if (e == null || page == null) return;
+    //    try
+    //    {
+    //        switch (e?.Code)
+    //        {
+    //            case "ArrowUp": await page.Up(); break;
+    //            case "ArrowDown": await page.Down(); break;
+    //            case "ArrowLeft": await page.Left(); break;
+    //            case "ArrowRight": await page.Right(); break;
+    //            default: break;
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Console.WriteLine(ex);
+    //    }
+
+
+    string infopanelvisible = "collapse";
+    string welcomeButon = string.Empty;
+    protected ElementReference divContainer;
+    protected async void KeyUp(KeyboardEventArgs e)
     {
-        if (e == null || page == null) return;
+        if (e == null) return;
         try
         {
-            switch (e?.Code)
+            switch (e.Code)
             {
-                case "ArrowUp": await page.Up(); break;
-                case "ArrowDown": await page.Down(); break;
-                case "ArrowLeft": await page.Left(); break;
-                case "ArrowRight": await page.Right(); break;
+                case "ArrowUp": await Up(); break;
+                case "ArrowDown": await Down(); break;
+                case "ArrowLeft": await Left(); break;
+                case "ArrowRight": await Right(); break;
                 default: break;
             }
         }
@@ -134,8 +187,8 @@
         {
             Console.WriteLine(ex);
         }
-
     }
+
 
 
     /// <summary>
@@ -188,7 +241,7 @@
             var diffTime = DateTime.Now - startPoint.StartTime;
             var b = false;
             const int minSwipDiff = 10; // at least 10 pixels
-            // check if swipe was more horizontal vs. vertical
+                                        // check if swipe was more horizontal vs. vertical
             if (Math.Abs(diffX) > Math.Abs(diffY))
             {
                 if (Math.Abs(diffX) > minSwipDiff)
@@ -240,7 +293,7 @@
     public void EvaluateStatus()
     {
         var done = game.Done();
-        (gamestatustext, gamestatusiconclass) = 
+        (gamestatustext, gamestatusiconclass) =
             game.Won() ?
             ("Congratulations - your are a Winner!!", "icon-won")
             : (
@@ -299,7 +352,7 @@
     protected override async void OnInitialized()
     {
         // set the static reference to the current page to this
-        page = this;
+        //page = this;
         try
         {
             // this.game.Cells = cellValues.Split(',').Select(x => int.Parse(x)).ToArray();
@@ -317,6 +370,15 @@
         await SaveCurrentGame();
         // singnal that the state has changed
         this.StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await jsRuntime.InvokeVoidAsync("SetFocusToElement", divContainer);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 }
 
