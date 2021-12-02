@@ -135,61 +135,6 @@
 </div>
 
 @code {
-    /// <summary>
-    /// reference to the current page
-    /// </summary>
-    // static P2048? page = null;
-    // see https://docs.microsoft.com/de-de/aspnet/core/blazor/call-dotnet-from-javascript?view=aspnetcore-5.0
-    /// <summary>
-    /// this method is static an hence callable per assembly. this allows static access from a JS Interop call
-    /// </summary>
-    /// <param name="e"></param>
-    /// <returns></returns>
-    //[JSInvokable("HandleKeyPress")]
-    //public static async Task HandleKeyPress(KeyboardEventArgs e)
-    //{
-    //    if (e == null || page == null) return;
-    //    try
-    //    {
-    //        switch (e?.Code)
-    //        {
-    //            case "ArrowUp": await page.Up(); break;
-    //            case "ArrowDown": await page.Down(); break;
-    //            case "ArrowLeft": await page.Left(); break;
-    //            case "ArrowRight": await page.Right(); break;
-    //            default: break;
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine(ex);
-    //    }
-
-
-    string infopanelvisible = "collapse";
-    string welcomeButon = string.Empty;
-    protected ElementReference divContainer;
-    protected async void KeyUp(KeyboardEventArgs e)
-    {
-        if (e == null) return;
-        try
-        {
-            switch (e.Code)
-            {
-                case "ArrowUp": await Up(); break;
-                case "ArrowDown": await Down(); break;
-                case "ArrowLeft": await Left(); break;
-                case "ArrowRight": await Right(); break;
-                default: break;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
-    }
-
-
 
     /// <summary>
     /// if true the buttons to control the game using mouse will be shown
@@ -210,6 +155,35 @@
     /// tuple for the data of a toucht event start
     /// </summary>
     (TouchPoint ReferencePoint, DateTime StartTime) startPoint;
+    /// <summary>
+    /// controll visibility of Welcome link and panel
+    /// </summary>
+    string infopanelvisible = "collapse";
+    string welcomeButon = string.Empty;
+
+    /// <summary>
+    /// refernce to the column container div for the game table
+    /// </summary>
+    protected ElementReference divContainer;
+    protected async void KeyUp(KeyboardEventArgs e)
+    {
+        if (e == null) return;
+        try
+        {
+            switch (e.Code)
+            {
+                case "ArrowUp": await Up(); break;
+                case "ArrowDown": await Down(); break;
+                case "ArrowLeft": await Left(); break;
+                case "ArrowRight": await Right(); break;
+                default: break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
 
     /// <summary>
     /// handle touch start
@@ -269,8 +243,6 @@
             Console.WriteLine(ex);
         }
     }
-
-
 
     string CellText(int row, int col)
     {
