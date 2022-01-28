@@ -4,8 +4,6 @@ using Blazored.LocalStorage;
 
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.JSInterop;
-
 
 // new C#10 program syntax
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
