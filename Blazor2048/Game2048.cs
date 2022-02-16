@@ -1,3 +1,4 @@
+// use new flat namespace syntax
 namespace Blazor2048;
 
 
